@@ -11,7 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Service
@@ -61,14 +61,17 @@ public class GreenScreenRateService {
     }
 
 
-    public Result fetchPredictedRate(Body body)
+    public Result fetchPredictedRate(NativeBody body)
 
     {
 
         String predictionUrl = "https://testapi.greenscreens.ai/v3/prediction/rates";
 
         if (body.getPickupDateTime() == null || body.getPickupDateTime().isEmpty()) {
-            body.setPickupDateTime(LocalDateTime.now(ZoneOffset.UTC).toString());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            String dateTime = LocalDateTime.now().format(formatter);
+            body.pickupDateTime = dateTime;
+            System.out.println(dateTime);
         }
 
         HttpRequest predictionRequest = HttpRequest.newBuilder()
@@ -76,9 +79,9 @@ public class GreenScreenRateService {
                 .header("Authorization", "Bearer " + AuthenticationState.accessToken)
                 .header("Content-Type", "application/json")
 //                    .POST(HttpRequest.BodyPublishers.ofString(body.toJson()))
-                .POST(HttpRequest.BodyPublishers.ofString(body.toJson()))
+                .POST(HttpRequest.BodyPublishers.ofString(body.toNative()))
                 .build();
-                 System.out.println(body.toJson());
+        System.out.println(body.toNative());
 
         try {
             var response = httpClient.send(predictionRequest, HttpResponse.BodyHandlers.ofString());
@@ -102,6 +105,7 @@ public class GreenScreenRateService {
                 gs.setStartBuyRate(jsonNode.get("startBuyRate").asText());
                 gs.setFuelRate(jsonNode.get("fuelRate").asText());
                 r.setGreenScreens(gs);
+                result.setStatusCode(200);
                 return result;
             }
 
@@ -110,6 +114,12 @@ public class GreenScreenRateService {
                     System.out.println("failed");
                 } else return fetchPredictedRate(body);
             }
+
+            else{
+                Result res = new Result();
+                res.setStatusCode(response.statusCode());
+                return res;
+            }
         } catch (Exception e) {
             System.out.println(e);
             return null;
@@ -117,73 +127,3 @@ public class GreenScreenRateService {
         return null;
     }
 }
-//
-//    public Result fetchPredictedRate(Body body) {
-//        String predictionUrl = "https://testapi.greenscreens.ai/v3/prediction/rates";
-//
-////        // Set pickupDateTime to current system time if it's not provided in the Body object
-//        if (body.getPickupDateTime() == null || body.getPickupDateTime().isEmpty()) {
-//            body.setPickupDateTime(LocalDateTime.now(ZoneOffset.UTC).toString());
-//        }
-//
-//        try {
-//            HttpRequest predictionRequest = HttpRequest.newBuilder()
-//                    .uri(URI.create(predictionUrl))
-//                    .header("Authorization", "Bearer " + AuthenticationState.accessToken)
-//                    .header("Content-Type", "application/json")
-//                    .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(body)))
-//                    .build();
-//
-//            HttpResponse<String> response = httpClient.send(predictionRequest, HttpResponse.BodyHandlers.ofString());
-//            System.out.println("fetchPredictedRate() " + response.statusCode());
-//
-//            if (response.statusCode() == 200) {
-//                return processResponse(response.body());
-//            }
-//            System.out.println("ok");
-//
-//            if (response.statusCode() == 401 && authenticate()) {
-//                return fetchPredictedRate(body);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//
-//    private Result processResponse(String responseBody) {
-//        try {
-//            System.out.println("Received response body: " + responseBody);
-//
-//            Result result = new Result();
-//            result.setMessage("your rates");
-//
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            JsonNode jsonNode = objectMapper.readTree(responseBody);
-//
-//            System.out.println("targetBuyRate: " + jsonNode.get("targetBuyRate").asText());
-//
-//            GreenScreens gs = new GreenScreens();
-//            DataObj x = new DataObj();
-//            Rates r = new Rates();
-//            x.setRates(r);
-//            result.setData(x);
-//
-//            gs.setTargetBuyRate(jsonNode.get("targetBuyRate").asText());
-//            gs.setLowBuyRate(jsonNode.get("lowBuyRate").asText());
-//            gs.setHighBuyRate(jsonNode.get("highBuyRate").asText());
-//            gs.setStartBuyRate(jsonNode.get("startBuyRate").asText());
-//            gs.setFuelRate(jsonNode.get("fuelRate").asText());
-//            r.setGreenScreens(gs);
-//
-//            return result;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-//}
-
-
-

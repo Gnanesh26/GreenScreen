@@ -9,9 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 class Converter {
@@ -30,10 +27,11 @@ class Converter {
     }
 }
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Body {
+class Body {
     String pickupDateTime;
     String transportType;
     ArrayList<Stop> stops;
@@ -42,32 +40,40 @@ public class Body {
         return Converter.convertToJson(this);
     }
 }
+@Data
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class NativeBody {
-    private Origin origin;
-    private Destination destination;
-    private String transportType;
-    private String pickupDateTime;
+    public Origin origin;
+    public Destination destination;
+    public String equipmentType;
+    public String pickupDateTime;
 
-    public NativeBody(Origin origin, Destination destination, String transportType) {
+    public NativeBody(Origin origin, Destination destination, String equipmentType) {
         this.origin = origin;
         this.destination = destination;
-        this.transportType = transportType;
-        this.pickupDateTime = LocalDateTime.now(ZoneOffset.UTC).toString();
+        this.equipmentType = equipmentType;
+//        this.pickupDateTime = LocalDateTime.now(ZoneOffset.UTC).toString();
+//        this.pickupDateTime = LocalDateTime.now(ZoneOffset.UTC).toString();
     }
 
-//    public String toJson() {
-//        return Converter.convertToJson(this);}
-//    }
+
+
 
     public String toNative() {
-        return new Body( origin,  destination, transportType) ;}
+        var lst = new ArrayList<Stop>();
+        lst.add(new Stop(origin.getOrder(),origin.getCountry(),origin.getCity(),origin.getState(),origin.getZip()));
+        lst.add(new Stop(destination.getOrder(),destination.getCountry(),destination.getCity(),destination.getState(),destination.getZip()));
+        return new Body(this.pickupDateTime,this.equipmentType,lst).toJson();
+    }
 }
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 class Stop {
-    String order;
+    int order;
     String country;
     String city;
     String state;
@@ -77,4 +83,3 @@ class Stop {
         return Converter.convertToJson(this);
     }
 }
-

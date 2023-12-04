@@ -21,43 +21,43 @@ public class GreenScreenController {
     @Autowired
     GreenScreenRateService greenScreenRateService;
 
-    @PostMapping("/search")
-    public ResponseEntity<Result> getPredictedRate(@RequestBody Body body) {
-
-        ResponseEntity<Result> response;
-        try {
-//            throw new Exception();
-            response = new ResponseEntity(greenScreenRateService.fetchPredictedRate(body), HttpStatus.OK);
-            System.out.println(response.getStatusCode());
-            System.out.println(response.getBody());
-
-        } catch (Exception e) {
-            response = new ResponseEntity("Error fetching predicted rate.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return response;
-    }
-}
-
-
-
 //    @PostMapping("/search")
-//    public ResponseEntity<Result> getPredictedRate(@RequestBody String bodyJson) {
+//    public ResponseEntity<Result> getPredictedRate(@RequestBody Body body) {
+//
 //        ResponseEntity<Result> response;
 //        try {
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            Body body = objectMapper.readValue(bodyJson, Body.class);
-//
+////            throw new Exception();
 //            response = new ResponseEntity(greenScreenRateService.fetchPredictedRate(body), HttpStatus.OK);
 //            System.out.println(response.getStatusCode());
 //            System.out.println(response.getBody());
 //
 //        } catch (Exception e) {
 //            response = new ResponseEntity("Error fetching predicted rate.", HttpStatus.INTERNAL_SERVER_ERROR);
-//            System.out.println(e);
 //        }
 //        return response;
 //    }
 //}
+
+
+
+    @PostMapping("/search")
+    public ResponseEntity<Result> getPredictedRate(@RequestBody String bodyJson) {
+        ResponseEntity<Result> response;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Body body = objectMapper.readValue(bodyJson, Body.class);
+
+            response = new ResponseEntity(greenScreenRateService.fetchPredictedRate(body), HttpStatus.OK);
+            System.out.println(response.getStatusCode());
+            System.out.println(response.getBody());
+
+        } catch (Exception e) {
+            response = new ResponseEntity("Error fetching predicted rate.", HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e);
+        }
+        return response;
+    }
+}
 
 
 

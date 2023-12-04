@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 class Converter {
@@ -40,25 +42,26 @@ public class Body {
         return Converter.convertToJson(this);
     }
 }
-//public class Body {
-//    private Origin origin;
-//    private Destination destination;
-//    private String transportType;
-//    private String pickupDateTime;
-//
-//    public Body(Origin origin, Destination destination, String transportType) {
-//        this.origin = origin;
-//        this.destination = destination;
-//        this.transportType = transportType;
-//        this.pickupDateTime = LocalDateTime.now().toString();
-//    }
-//
+public class NativeBody {
+    private Origin origin;
+    private Destination destination;
+    private String transportType;
+    private String pickupDateTime;
+
+    public NativeBody(Origin origin, Destination destination, String transportType) {
+        this.origin = origin;
+        this.destination = destination;
+        this.transportType = transportType;
+        this.pickupDateTime = LocalDateTime.now(ZoneOffset.UTC).toString();
+    }
+
 //    public String toJson() {
 //        return Converter.convertToJson(this);}
 //    }
 
-
-
+    public String toNative() {
+        return new Body( origin,  destination, transportType) ;}
+}
 
 @Data
 @AllArgsConstructor
